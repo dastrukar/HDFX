@@ -1,4 +1,4 @@
 gameinfo
 {
-	AddEventHandlers = "HDFXDustHandler", "HDFXGibsHandler"
+	AddEventHandlers = "HDFXDustHandler"
 }
