@@ -1,3 +1,16 @@
+class BloodSpam : Actor
+{
+	override void BeginPlay()
+	{
+		Super.BeginPlay();
+		for (int i = 0; i < 1000; i++)
+		{
+			Actor.Spawn("HDFXMasterBlood", Pos);
+		}
+		Destroy();
+	}
+}
+
 class HDFXMasterBlood : HDPuff replaces HDMasterBlood
 {
 	default
@@ -79,6 +92,7 @@ class HDFXBlood : Actor replaces Blood
 
     bool airborne, liquid;
     int bloodmass, phase;
+	BloodSplatTracker Tracker;
     
     override void PostBeginPlay()
     {
@@ -120,6 +134,13 @@ class HDFXBlood : Actor replaces Blood
                         }
                     }
                 }
+
+				if (!Tracker.TryUpdate(self))
+				{
+					Destroy();
+					// Console.PrintF("overlap, goodbye");
+					return;
+				}
             }
             bFlatSprite = true;
             bMoveWithSector = true;
@@ -257,5 +278,221 @@ class HDFXCacoBlood : HDFXBloodSpawner replaces CacoShellBlood
 				if(HDBulletActor(frg))frg.bincombat=true; //work around hack that normally lets HDBulletActor out
 			}
 		}
+	}
+}
+
+class SplatPos
+{
+	double X;
+	double Y;
+	double Z;
+
+	static SplatPos Create(double x, double y, double z)
+	{
+		let pos = SplatPos(new("SplatPos"));
+		pos.X = x;
+		pos.Y = y;
+		pos.Z = z;
+		return pos;
+	}
+
+	bool Compare(SplatPos pos)
+	{
+		return (
+			X == pos.X
+			&& Y == pos.Y
+			&& Z == pos.Z
+		);
+	}
+}
+
+// chunks are 128x128
+class SplatChunk
+{
+	Vector2 ChunkPos;
+	Array<SplatPos> BloodSplatPos;
+	Array<HDFXBlood> BloodSplatArray;
+
+	static SplatChunk Create(SplatPos pos)
+	{
+		let chunk = SplatChunk(new("SplatChunk"));
+		chunk.ChunkPos = (int(pos.X / 128), int(pos.Y / 128));
+		chunk.BloodSplatPos.Clear();
+		chunk.BloodSplatArray.Clear();
+		Console.PrintF("new chunk at "..chunk.ChunkPos);
+
+		return chunk;
+	}
+
+	int FindByPos(SplatPos pos)
+	{
+		for (int i = 0; i < BloodSplatPos.Size(); i++)
+		{
+			if (!BloodSplatPos[i].Compare(pos))
+				continue;
+
+			return i;
+		}
+
+		return BloodSplatArray.Size();
+	}
+
+	int FindBySplat(HDFXBlood blood)
+	{
+		for (int i = 0; i < BloodSplatPos.Size(); i++)
+		{
+			if (!BloodSplatArray[i])
+			{
+				Remove(i);
+				--i;
+				continue;
+			}
+
+			if (BloodSplatArray[i] != blood)
+				continue;
+
+			return i;
+		}
+
+		return BloodSplatArray.Size();
+	}
+
+	bool RemoveSplat(HDFXBlood blood)
+	{
+		int i = FindBySplat(blood);
+		if (i >= BloodSplatArray.Size())
+			return false;
+
+		Remove(i);
+		return true;
+	}
+
+	void Remove(int i)
+	{
+		BloodSplatPos.Delete(i);
+		BloodSplatArray.Delete(i);
+	}
+
+	HDFXBlood GetSplat(int i)
+	{
+		return BloodSplatArray[i];
+	}
+
+	void Add(SplatPos pos, HDFXBlood blood)
+	{
+		BloodSplatPos.Push(pos);
+		BloodSplatArray.Push(blood);
+	}
+
+	bool Compare(SplatPos pos)
+	{
+		Vector2 tmppos = (int(pos.X / 128), int(pos.Y / 128));
+		return (
+			tmppos.X == ChunkPos.X
+			&& tmppos.Y == ChunkPos.Y
+		);
+	}
+}
+
+class BloodSplatTracker play
+{
+	Array<SplatChunk> ChunkArray;
+	int size;
+
+	void TryRemove(HDFXBlood blood)
+	{
+		if (!blood)
+			return;
+
+		for (int i = 0; i < ChunkArray.Size(); i++)
+		{
+			SplatChunk chunk = ChunkArray[i];
+			if (!chunk.RemoveSplat(blood))
+				continue;
+
+			if (chunk.BloodSplatArray.Size() == 0)
+			{
+				Console.PrintF("dead chunk at "..chunk.ChunkPos);
+				ChunkArray.Delete(i);
+			}
+
+			// --size;
+			// Console.PrintF("size (removed): "..size);
+			break;
+		}
+	}
+
+	bool TryUpdate(HDFXBlood blood)
+	{
+		int spacing = 2;
+		let pos = SplatPos.Create(
+			int(blood.Pos.X),
+			int(blood.Pos.Y),
+			int(blood.Pos.Z)
+		);
+		pos.X += spacing - (pos.X % spacing);
+		pos.Y += spacing - (pos.Y % spacing);
+		pos.Z += spacing - (pos.Z % spacing);
+		// console.printf("newblood: ("..pos.X..","..pos.Y..","..pos.Z..")");
+
+		SplatChunk inChunk = NULL;
+		foreach (chunk : ChunkArray)
+		{
+			if (!chunk.Compare(pos))
+				continue;
+
+			inChunk = chunk;
+			break;
+		}
+
+		if (inChunk)
+		{
+			int i = inChunk.FindByPos(pos);
+			if (i < inChunk.BloodSplatArray.Size())
+			{
+				let splat = inChunk.GetSplat(i);
+				splat.BloodMass++;
+				splat.SetState(splat.ResolveState("Spawn"));
+				return false;
+			}
+		}
+		else
+		{
+			inChunk = SplatChunk.Create(pos);
+			ChunkArray.Push(inChunk);
+		}
+
+		inChunk.Add(pos, blood);
+		// ++size;
+		// Console.PrintF("size (added): "..size);
+		return true;
+	}
+}
+
+class HDFXBloodManager : EventHandler
+{
+	BloodSplatTracker Tracker;
+
+	override void WorldLoaded(WorldEvent e)
+	{
+		Tracker = new("BloodSplatTracker");
+	}
+
+	override void WorldThingSpawned(WorldEvent e)
+	{
+		let blood = HDFXBlood(e.thing);
+		if (!blood)
+			return;
+
+		blood.Tracker = Tracker;
+	}
+
+	override void WorldThingDestroyed(WorldEvent e)
+	{
+		let blood = HDFXBlood(e.thing);
+		if (!blood && Tracker)
+			return;
+
+		Tracker.TryRemove(blood);
 	}
 }
