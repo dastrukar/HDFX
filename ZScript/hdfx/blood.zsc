@@ -319,7 +319,7 @@ class SplatChunk
 		chunk.ChunkPos = (int(pos.X / 128), int(pos.Y / 128));
 		chunk.BloodSplatPos.Clear();
 		chunk.BloodSplatArray.Clear();
-		Console.PrintF("new chunk at "..chunk.ChunkPos);
+		// Console.PrintF("new chunk at "..chunk.ChunkPos);
 
 		return chunk;
 	}
@@ -412,7 +412,7 @@ class BloodSplatTracker play
 
 			if (chunk.BloodSplatArray.Size() == 0)
 			{
-				Console.PrintF("dead chunk at "..chunk.ChunkPos);
+				// Console.PrintF("dead chunk at "..chunk.ChunkPos);
 				ChunkArray.Delete(i);
 			}
 
