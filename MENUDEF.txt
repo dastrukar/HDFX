@@ -1,0 +1,26 @@
+OptionMenu "HDFXOptions"
+{
+	Title "HDFX Options"
+
+	StaticText "= Blood FX =", "Gold"
+	Slider "Blood count", "hdfx_bloodcount", 1, 100, 1
+	Slider "Blood time", "hdfx_bloodtime", 1, 240, 1
+	Slider "Blood Random Max Z Velocity", "hdfx_bloodvelz", 0, 20, 0.05, 2
+	StaticText ""
+
+	StaticText "= Dust FX =", "Gold"
+	StaticText "How much dust to create?", "White"
+	Slider "Dust count", "hdfx_dustcount", 1, 100, 1
+	StaticText "How often will dust be created?", "White"
+	Slider "Dust rate", "hdfx_dustrate", 1, 100, 1
+}
+
+AddOptionMenu "OptionsMenu"
+{
+	Submenu "HDFX Options", "HDFXOptions"
+}
+
+AddOptionMenu "HDAddonMenu"
+{
+	Submenu "HDFX Options", "HDFXOptions"
+}
