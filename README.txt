@@ -1,5 +1,5 @@
 This is a fork of Josh771's HDFX, so all credits go to him.
-For the most part, this fork focuses on making HDFX more optimising some parts of the system, and also adding some QoL here and there.
+For the most part, this fork focuses on making HDFX more optimised by reworking some parts of the system, and also adding some QoL here and there.
 
 NOTE: Gibbing has been disabled until I can find a better way to handle it (that and i also don't really like gibbing lol)
 
