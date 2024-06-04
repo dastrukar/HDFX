@@ -135,7 +135,7 @@ class HDFXBlood : Actor replaces Blood
                     }
                 }
 
-				if (!Tracker.TryUpdate(self))
+				if (Tracker && !Tracker.TryUpdate(self))
 				{
 					Destroy();
 					// Console.PrintF("overlap, goodbye");
@@ -451,9 +451,17 @@ class BloodSplatTracker play
 			if (i < inChunk.BloodSplatArray.Size())
 			{
 				let splat = inChunk.GetSplat(i);
-				splat.BloodMass++;
-				splat.SetState(splat.ResolveState("Spawn"));
-				return false;
+				// for some reason, there are rare cases of dead splats sitting in the chunk
+				if (splat)
+				{
+					splat.BloodMass++;
+					splat.SetState(splat.ResolveState("Spawn"));
+					return false;
+				}
+
+				inChunk.Remove(i);
+				// --size;
+				// Console.PrintF("size (removed): "..size);
 			}
 		}
 		else
@@ -490,7 +498,7 @@ class HDFXBloodManager : EventHandler
 	override void WorldThingDestroyed(WorldEvent e)
 	{
 		let blood = HDFXBlood(e.thing);
-		if (!blood && Tracker)
+		if (!blood || !Tracker)
 			return;
 
 		Tracker.TryRemove(blood);
