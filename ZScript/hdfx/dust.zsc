@@ -1,88 +1,88 @@
 class HDFXDust : VisualThinker
 {
-    int hl, ttl;
-    Vector3 drift_v;
-    HDPlayerPawn hdp;
+	int hl, ttl;
+	Vector3 drift_v;
+	HDPlayerPawn hdp;
 
-    static void Spawn(HDPlayerPawn hdp)
-    {
-        double vx = (hdp.Vel.x * cos(hdp.Angle) + hdp.Vel.y * sin(hdp.Angle)) * 35;
-        double vy = (hdp.Vel.x * sin(hdp.Angle) + hdp.Vel.y * cos(hdp.Angle)) * 35;
-        double vz = hdp.Vel.z * 35;
-        Vector3 dustPos = hdp.Pos + (vx+FRandom(-512,512), vy+FRandom(-720,720), vz+FRandom(-171,267));
+	static void Spawn(HDPlayerPawn hdp)
+	{
+		double vx = (hdp.Vel.x * cos(hdp.Angle) + hdp.Vel.y * sin(hdp.Angle)) * 35;
+		double vy = (hdp.Vel.x * sin(hdp.Angle) + hdp.Vel.y * cos(hdp.Angle)) * 35;
+		double vz = hdp.Vel.z * 35;
+		Vector3 dustPos = hdp.Pos + (vx+FRandom(-512,512), vy+FRandom(-720,720), vz+FRandom(-171,267));
 
-        if (!Level.IsPointInLevel(dustPos))
-            return;
+		if (!Level.IsPointInLevel(dustPos))
+			return;
 
-        let dust = HDFXDust(VisualThinker.Spawn(
-            "HDFXDust",
-            TexMan.CheckForTexture("DUSTY0"),
-            dustPos,
-            (0, 0, 0),
-            alpha: 0.0,
-            scale: (2.0, 2.0),
-            style: STYLE_Translucent
-        ));
+		let dust = HDFXDust(VisualThinker.Spawn(
+			"HDFXDust",
+			TexMan.CheckForTexture("DUSTY0"),
+			dustPos,
+			(0, 0, 0),
+			alpha: 0.0,
+			scale: (2.0, 2.0),
+			style: STYLE_Translucent
+		));
 
-        dust.hdp = hdp;
-    }
-    
-    override void PostBeginPlay()
-    {
-        hl = random(27,88);
-        ttl = hl * 2;
-        vel += (frandom(-0.4,0.4), frandom(-0.4,0.4), frandom(-0.4,0.4));
-        drift_v = ((frandom(-0.4,0.4), frandom(-0.4,0.4), frandom(-0.4,0.4)) - vel) * 1.0/ttl;
-    }
+		dust.hdp = hdp;
+	}
+	
+	override void PostBeginPlay()
+	{
+		hl = random(27,88);
+		ttl = hl * 2;
+		vel += (frandom(-0.4,0.4), frandom(-0.4,0.4), frandom(-0.4,0.4));
+		drift_v = ((frandom(-0.4,0.4), frandom(-0.4,0.4), frandom(-0.4,0.4)) - vel) * 1.0/ttl;
+	}
 
-    override void Tick()
-    {
-        if (isFrozen())
-            return;
+	override void Tick()
+	{
+		if (isFrozen())
+			return;
 
-        Super.Tick();
-        vel += drift_v;
-        
-        if (--ttl == 0)
-        {
-            Destroy();
-        }
-        else if (ttl < hl)
-        {
-            alpha = double(ttl)/hl;
-        }
-        else
-        {
-            alpha = 2 - double(ttl)/hl;
-        }
+		Super.Tick();
+		vel += drift_v;
+		
+		if (--ttl == 0)
+		{
+			Destroy();
+		}
+		else if (ttl < hl)
+		{
+			alpha = double(ttl)/hl;
+		}
+		else
+		{
+			alpha = 2 - double(ttl)/hl;
+		}
 
-        // player distance based alpha calculations
-        if (!hdp)
-            return;
+		// player distance based alpha calculations
+		if (!hdp)
+			return;
 
-        Vector3 spherical = Level.SphericalCoords(hdp.Pos, Pos);
-        double dist_factor = min(1.0, spherical.z / 98);
-        alpha *= alpha * dist_factor;
-    }
+		Vector3 spherical = Level.SphericalCoords(hdp.Pos, Pos);
+		double dist_factor = min(1.0, spherical.z / 98);
+		alpha *= alpha * dist_factor;
+	}
 }
 
 class HDFXDustHandler : EventHandler
-{    
-    override void WorldTick()
-    {
-        if (Level.Time % hdfx_dustrate)
-            return;
+{
+	override void WorldTick()
+	{
+		if (Level.Time % hdfx_dustrate)
+			return;
 
-        for (int i = 0; i < MAXPLAYERS; i++)
-        {
-            let hdp = HDPlayerPawn(players[i].mo);
-            if (!hdp)
-                return;
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			let hdp = HDPlayerPawn(players[i].mo);
+			if (!hdp)
+				return;
 
-            for (int i = 0; i < hdfx_dustcount; i++)
-            {
-                HDFXDust.Spawn(hdp);
-            }
-        }
-    }
+			for (int i = 0; i < hdfx_dustcount; i++)
+			{
+				HDFXDust.Spawn(hdp);
+			}
+		}
+	}
 }
