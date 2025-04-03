@@ -5,3 +5,4 @@ server float hdfx_bloodvelz = 0.0;
 // server int hdfx_gibtime = 30;
 server int hdfx_dustcount = 1;
 server int hdfx_dustrate = 1;
+server bool hdfx_enablecacodecal = true;

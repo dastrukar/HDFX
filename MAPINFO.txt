@@ -1,4 +1,4 @@
 gameinfo
 {
-	AddEventHandlers = "HDFXDustHandler", "HDFXBloodManager"
+	AddEventHandlers = "HDFXDustHandler", "HDFXBloodManager", "HDFXCacodemonDecalEnabler"
 }

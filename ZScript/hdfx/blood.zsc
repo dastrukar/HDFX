@@ -504,3 +504,23 @@ class HDFXBloodManager : EventHandler
 		Tracker.TryRemove(blood);
 	}
 }
+
+class HDFXCacodemonDecalEnabler : StaticEventHandler
+{
+	transient CVar hdfx_enablecacodecal;
+
+	override void WorldTick()
+	{
+		if (!hdfx_enablecacodecal)
+			hdfx_enablecacodecal = CVar.FindCVar("hdfx_enablecacodecal");
+	}
+
+	override void WorldThingSpawned(WorldEvent e)
+	{
+		if (!(hdfx_enablecacodecal.GetBool() && e.Thing && FlyZapper(e.Thing)))
+			return;
+
+		let caco = FlyZapper(e.Thing);
+		caco.bNoBloodDecals = false;
+	}
+}

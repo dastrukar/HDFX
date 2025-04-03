@@ -7,6 +7,8 @@ OptionMenu "HDFXOptions"
 	Slider "Blood time", "hdfx_bloodtime", 1, 240, 1
 	Slider "Blood Random Max Z Velocity", "hdfx_bloodvelz", 0, 20, 0.05, 2
 	StaticText ""
+	Option "Force enable Cacodemon blood decal", "hdfx_enablecacodecal", "YesNo"
+	StaticText ""
 
 	StaticText "= Dust FX =", "Gold"
 	StaticText "How much dust to create?", "White"
