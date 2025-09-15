@@ -6,7 +6,7 @@ class HDFXGibsHandler : EventHandler
 		if (!mo || !mo.bISMONSTER || mo.bNOBLOOD)
 			return;
 
-		if (mo.FindState("XDeath", True))
+		if (mo.FindState("XDeath", True) || mo.FindState("gib", True))
 			mo.GiveInventory("HDFXInternalOrgans", 1);
 	}
 }
@@ -25,6 +25,13 @@ class HDFXInternalOrgans : Inventory
 		Inventory.MaxAmount 1;
 	}
 
+	override void BeginPlay()
+	{
+		bGibbed = false;
+		bInit = false;
+		super.BeginPlay();
+	}
+
 	override void Tick()
 	{
 		if (!bInit)
@@ -36,15 +43,18 @@ class HDFXInternalOrgans : Inventory
 		if (isFrozen() || !owner)
 			return;
 
-		if (!bGibbed && (
+		bool inGibbedState = (
 			owner.InStateSequence(owner.CurState, owner.ResolveState("XXXDeath")) ||
-			owner.InStateSequence(owner.CurState, owner.ResolveState("XDeath"))
-		))
+			owner.InStateSequence(owner.CurState, owner.ResolveState("XDeath")) ||
+			owner.InStateSequence(owner.CurState, owner.ResolveState("gib"))
+		);
+
+		if (!bGibbed && inGibbedState)
 		{
 			bGibbed = true;
 			owner.A_SpawnItemEx('HDFXGibSpray', 0, 0, 0, vel.x, vel.y, vel.z, flags:SXF_USEBLOODCOLOR|SXF_SETTARGET);
 		}
-		else if (owner.health > 0)
+		else if (!inGibbedState && owner.health > 0)
 			bGibbed = false;
 	}
 }
