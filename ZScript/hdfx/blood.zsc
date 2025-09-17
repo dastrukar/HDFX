@@ -422,6 +422,7 @@ class BloodSplatTracker play
 		}
 	}
 
+	// returns false if the provided HDFXBlood should be destroyed
 	bool TryUpdate(HDFXBlood blood)
 	{
 		int spacing = 2;
@@ -454,7 +455,7 @@ class BloodSplatTracker play
 				// for some reason, there are rare cases of dead splats sitting in the chunk
 				if (splat)
 				{
-					splat.BloodMass++;
+					splat.BloodMass = min(3, splat.BloodMass + 1);
 					splat.SetState(splat.ResolveState("Spawn"));
 					return false;
 				}
