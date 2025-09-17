@@ -4,7 +4,7 @@ OptionMenu "HDFXOptions"
 
 	StaticText "= Blood FX =", "Gold"
 	Slider "Blood count", "hdfx_bloodcount", 1, 100, 1
-	Slider "Blood time", "hdfx_bloodtime", 1, 240, 1
+	Slider "Blood lifetime", "hdfx_bloodtime", 1, 240, 1
 	Slider "Blood Random Max Z Velocity", "hdfx_bloodvelz", 0, 20, 0.05, 2
 	StaticText ""
 	Option "Force enable Cacodemon blood decal", "hdfx_enablecacodecal", "YesNo"
@@ -15,6 +15,11 @@ OptionMenu "HDFXOptions"
 	Slider "Dust count", "hdfx_dustcount", 1, 100, 1
 	StaticText "How often will dust be created?", "White"
 	Slider "Dust rate", "hdfx_dustrate", 1, 100, 1
+	StaticText ""
+
+	StaticText "= Gibs FX =", "Gold"
+	Slider "Gibs count", "hdfx_gibcount", 1, 100, 1
+	Slider "Gibs lifetime", "hdfx_gibtime", 1, 240, 1
 }
 
 AddOptionMenu "OptionsMenu"
