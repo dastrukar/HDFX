@@ -8,8 +8,6 @@ class HDFXGibsHandler : EventHandler
 
 		if (mo.FindState("XDeath", True) || mo.FindState("gib", True))
 			mo.GiveInventory("HDFXInternalOrgans", 1);
-
-		console.printf(mo.FindInventory("HDFXInternalOrgans").." "..mo.GetClassName());
 	}
 }
 
