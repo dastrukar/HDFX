@@ -47,7 +47,7 @@ class HDFXInternalOrgans : Inventory
 
 		bool inGibbedState = (
 			owner.InStateSequence(owner.CurState, owner.ResolveState("XXXDeath")) ||
-			owner.InStateSequence(owner.CurState, owner.ResolveState("XDeath")) ||
+			// owner.InStateSequence(owner.CurState, owner.ResolveState("XDeath")) ||
 			owner.InStateSequence(owner.CurState, owner.ResolveState("gib"))
 		);
 
