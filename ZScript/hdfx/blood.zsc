@@ -147,7 +147,9 @@ class HDFXBlood : Actor replaces Blood
 			if (abs(vel.x)+abs(vel.y)+abs(vel.z) == 0)
 			{
 				Vector3 rpos = (int(pos.x), int(pos.y), pos.z);
-				SetOrigin(rpos, false);
+				if (rpos != pos)
+					SetOrigin(rpos, false);
+
 				if (level.time % 12 == phase)
 				{
 					int checkdist = 6;
